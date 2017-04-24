@@ -1,0 +1,281 @@
+div {
+	font-family: 'Karla', sans-serif;
+}
+
+.main-div-steez {
+	position: relative;
+	overflow: hidden;
+	background-color: #c2eabd;
+	min-height: 100vh;
+	padding-left: 10%;
+	padding-right: 10%;
+}
+
+.sign-in-view-steez {
+	background-color: #c2eabd;
+	min-height: 100vh;
+	padding-top: 50px;
+	padding-left: 30%;
+	padding-right: 30%;
+}
+
+@media (max-width: 768px){
+	.main-div-steez {
+		padding-left: 80px;
+		padding-right: 80px;
+	}
+}
+
+.heading-steez {
+	background-color: #cd533b;
+}
+
+h1 {
+	font-size: 26;
+	color: #cd533b;
+	display: inline-block;
+	margin: 10px;
+}
+
+h2 {
+	margin-bottom: 10px;
+	text-decoration: underline;
+}
+
+.ketchup-bottle {
+	background-image: url("./img/ketchup.png");
+	width: 50px;
+	height: 50px;
+	background-size: 50px;
+	display: inline-block;
+	/*margin: 10px;*/
+}
+
+.button-steez {
+	background-color: #008CBA;
+	color: white;
+	font-size: 16px;
+	padding: 7px;
+	border: none;
+	border-radius: 8px;
+	font-family: 'Karla', sans-serif;
+	cursor: pointer;
+	margin-right: 12px;
+}
+
+.button-steez:hover {
+	background-color: green;
+}
+
+.add-item-button-steez {
+	position: absolute;
+	top: 10px;
+	left: 10px;
+	background-color: #C0BABC;
+	color: white;
+	font-size: 32px;
+	padding: 10px 25px 10px 25px;
+	border: none;
+	border-radius: 8px;
+	font-family: 'Karla', sans-serif;
+	cursor: pointer;
+}
+
+.add-item-button-steez:hover {
+	background-color: #c7ac92;
+}
+
+.menu-button-steez {
+	position: absolute;
+	top: 0;
+	right: 0;
+	height: 75px;
+	width: 75px;
+	transition: all .5s ease-in-out;
+	background-image: url("./img/menu.png");
+	background-size: 75px;
+	cursor: pointer;
+}
+
+.menu-button-steez.move-left {
+	transform: translateX(-300px) rotate(0.25turn);
+}
+
+.item-button-steez {
+	background-color: white;
+	border-color: black;
+	border-width: 2px;
+	border-style: solid;
+	border-radius: 8px;
+	padding: 10px;
+}
+
+.item-button-steez:hover {
+	background-color: #cd533b;
+}
+
+.heading-bar-steez {
+	padding-top: 20px;
+	border-bottom-width: 12px;
+	border-bottom-color: #CD533B;
+	border-bottom-style: solid;
+	margin-bottom: 15px;
+}
+
+.button-bar-steez {
+	/*padding-left: 250px;
+	padding-right: 250px;*/
+}
+
+.list-of-lists-steez {
+	width: 500px;
+}
+
+@media (max-width: 768px){
+	.list-of-lists-steez {
+		width: 100%;
+	}
+}
+
+.item-list-steez {
+	padding: 0;
+	list-style-type: none;
+}
+
+/* side menu */
+
+.side-menu-steez {
+	transition: all .5s ease-in-out;
+	height: 100%;
+	background-color: #CD533B;
+}
+
+.side-menu-steez.move-left {
+	transform: translateX(-300px);
+}
+
+.navigation {
+	list-style-type: none;
+	padding-left: 0px;
+}
+
+.navigation li {
+	/*border-top: 1px solid #111;
+    border-bottom: 1px solid #000;*/
+}
+
+.navigation li a {
+	display: block;
+	color: #e8b0a5;
+	text-decoration: none;
+	padding: 1em;
+	/*background: linear-gradient(135deg, rgba(0,0,0,0) 0%,rgba(0,0,0,0.65) 100%);*/
+	transition: color 0.2s, background 0.5s;
+}
+
+.navigation li a:hover {
+	color: #5e261b;
+	background: linear-gradient(135deg, rgba(0,0,0,0) 0%,rgba(75,20,20,0.65) 100%);
+}
+
+/* item list transitions*/
+
+.item-list-enter {
+  opacity: 0.01;
+}
+
+.item-list-enter.item-list-enter-active {
+  opacity: 1;
+  transition: opacity 500ms ease-in;
+}
+
+.item-list-leave {
+  opacity: 1;
+}
+
+.item-list-leave.item-list-leave-active {
+  opacity: 0.01;
+  transition: opacity 300ms ease-in;
+}
+
+/* modal styles */
+
+.modal-steez {
+	position: absolute;
+	top: 50px;
+	left: 30%;
+	right: 30%;
+	/*bottom: 40px;*/
+
+	border: 1px solid #ccc;
+	background: #fff;
+	overflow: auto;
+	-webkit-overflow-scrolling: touch;
+	border-radius: 10px;
+	outline: none;
+	padding: 20px;
+	transition: all .5s ease-in-out;
+	box-shadow: 10px 10px 5px grey;
+}
+
+.modal-overlay-steez {
+	position: fixed;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+	background-color: rgba(255, 255, 255, 0.75);
+}
+
+@media (max-width: 900px){
+	.modal-steez {
+		top: 40px;
+		left: 20%;
+		right: 20%;
+	}
+
+	.modal-overlay-steez {
+
+	}
+}
+
+.modal-steez div{
+	/*padding-top: 15px;
+	padding-bottom: 15px;*/
+}
+
+.modal-close {
+	float: right;
+	display: inline;
+	cursor: pointer;
+}
+
+.modal-steez label{
+	/*margin-top: 15px;
+	margin-bottom: 50px;*/
+}
+
+.form-group {
+	margin-top: 7px;
+	margin-bottom: 7px;
+}
+
+.form-group input {
+	width: 100%;
+	height: 25px;
+	margin-top: 15px;
+	margin-bottom: 15px;
+	border-radius: 8px;
+	border-color: blue;
+	font-size: 12pt;
+	font-family: 'Karla', sans-serif;
+	padding-left: 7px;
+	padding-right: 7px;
+}
+
+.form-group select {
+	width: 100%;
+	height: 25px;
+	margin-top: 15px;
+	margin-bottom: 15px;
+}
