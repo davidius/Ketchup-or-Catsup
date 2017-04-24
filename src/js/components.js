@@ -16,7 +16,6 @@ export class ItemButton extends Component {
   }
 
   handleCheckboxClick(event) {
-    console.dir(this.props.item);
     let correspondingItem = this.props.item;
     this.props.deleteItem(correspondingItem);
   }
@@ -177,7 +176,6 @@ export class SignInView extends Component {
 
   handleSignUp(event) {
     event.preventDefault();
-    console.log("signing up with email " + this.state.email + " and password " + this.state.password);
     this.props.firebaseSignUp(this.state.email, this.state.password);
   }
 
@@ -244,7 +242,7 @@ export class AddItemModal extends Component {
     event.preventDefault();
     let itemName = this.state.itemName.trim();
 
-    if(itemName !== ""){
+    if(itemName !== "" && this.props.categories.length > 0){
       let actualCategory = findCategoryByName(this.state.categoryName, this.props.categories);
       this.props.addItem(itemName, actualCategory);
       this.props.onRequestClose();
@@ -252,7 +250,7 @@ export class AddItemModal extends Component {
   }
 
   componentWillReceiveProps(){
-    if(this.props.categories){
+    if(this.props.categories && this.props.categories.length>0){
       this.setState({
         categoryName: this.props.categories[0].name
       });
@@ -267,8 +265,11 @@ export class AddItemModal extends Component {
       });
     }
 
-    // @TODO: if there are no categories yet, the modal must reflect this, i.e. by not allowing the user to add an uncategorised item
-    
+    var noCategoriesMessage;
+    if(this.props.categories && this.props.categories.length === 0){
+      noCategoriesMessage = <div className="error-message">You'll need to add at least one category before you can add an item.</div>;
+    }
+
     return(
       <Modal
         isOpen={this.props.modalIsOpen}
@@ -291,6 +292,7 @@ export class AddItemModal extends Component {
             {categoriesToShow}
           </select>
         </div>
+        {noCategoriesMessage}
         <button className="button-steez" onClick={this.handleAddItem}>Add item!</button>
         
       </Modal>

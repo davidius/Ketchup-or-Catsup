@@ -29,7 +29,8 @@ class App extends Component {
       categories: null,
       menuBarVisible: false,
       addItemModalIsOpen: false,
-      addCategoryModalIsOpen: false
+      addCategoryModalIsOpen: false,
+      authenticationError: null
     };
 
     this.itemsRef = firebaseApp.database().ref();
@@ -88,22 +89,34 @@ class App extends Component {
   }
 
   firebaseSignIn(email, password) {
-    firebase.auth().signInWithEmailAndPassword(email, password).catch((error) => {
-      console.log(error);
+    firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
+        this.setState({
+          componentToShow: "Main",
+        });
+      }).catch((error) => {
+        this.setState({
+          authenticationError: error
+        });
     });
   }
 
   firebaseSignUp(email, password) {
     firebase.auth().createUserWithEmailAndPassword(email, password).then(() => {
-      console.log("successfully signed in");
+      this.setState({
+        componentToShow: "Main",
+      });
     }).catch((error) => {
-      console.log(error);
+      this.setState({
+        authenticationError: error
+      });
     });
   }
 
   firebaseSignOut() {
     firebase.auth().signOut().catch((error) => {
-      console.log(error);
+      this.setState({
+        authenticationError: error
+      });
     });
   }
 
@@ -157,7 +170,6 @@ class App extends Component {
   }
 
   addCategory(name){
-    console.log("about to add category: " + name);
     var newTag = {};
     var arrayOfTagIds = [];
     var nextAvailableTagId;
