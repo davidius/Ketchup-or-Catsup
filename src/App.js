@@ -55,15 +55,12 @@ class App extends Component {
     this.addCategory = this.addCategory.bind(this);
 
     this.openAddItemModal = this.openAddItemModal.bind(this);
-    this.afterOpenAddItemModal = this.afterOpenAddItemModal.bind(this);
     this.closeAddItemModal = this.closeAddItemModal.bind(this);
 
     this.openAddCategoryModal = this.openAddCategoryModal.bind(this);
-    this.afterOpenAddCategoryModal = this.afterOpenAddCategoryModal.bind(this);
     this.closeAddCategoryModal = this.closeAddCategoryModal.bind(this);
 
     this.openEditItemModal = this.openEditItemModal.bind(this);
-    this.afterOpenEditItemModal = this.afterOpenEditItemModal.bind(this);
     this.closeEditItemModal = this.closeEditItemModal.bind(this);
   }
 
@@ -112,7 +109,6 @@ class App extends Component {
         });
       }
     });
-    console.log(firebaseLists);
   }
 
   firebaseSignIn(email, password) {
