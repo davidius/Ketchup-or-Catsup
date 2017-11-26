@@ -30,6 +30,8 @@ div {
 	background-color: #cd533b;
 }
 
+/*--------------------------------headings----------------------------------*/
+
 h1 {
 	font-size: 26;
 	color: #cd533b;
@@ -41,6 +43,17 @@ h2 {
 	margin-bottom: 10px;
 	text-decoration: underline;
 }
+
+/*--------------------------------icon buttons----------------------------------*/
+
+.pencil-icon {
+	width: 36px;
+	height: 36px;
+	padding: 0;
+	float: right;
+}
+
+/*--------------------------------other----------------------------------*/
 
 .ketchup-bottle {
 	background-image: url("./img/ketchup.png");
@@ -81,8 +94,16 @@ h2 {
 	cursor: pointer;
 }
 
-.add-item-button-steez:hover {
-	background-color: #c7ac92;
+@media (min-width: 768px) {
+	.add-item-button-steez:hover {
+		background-color: #c7ac92;
+	}
+}
+
+@media (max-width: 768px) {
+	.add-item-button-steez:active {
+		background-color: #c7ac92;
+	}
 }
 
 .menu-button-steez {
@@ -97,9 +118,11 @@ h2 {
 	cursor: pointer;
 }
 
-.menu-button-steez.move-left {
+/*.menu-button-steez.move-left {
 	transform: translateX(-300px) rotate(0.25turn);
-}
+}*/
+
+/*-------------------------item button-------------------------*/
 
 .item-button-steez {
 	background-color: white;
@@ -108,11 +131,46 @@ h2 {
 	border-style: solid;
 	border-radius: 8px;
 	padding: 10px;
+	display: flex;
 }
 
 .item-button-steez:hover {
-	background-color: #cd533b;
+	border-color: #cd533b;
 }
+
+.item-button-check {
+	width: 90%;
+	height: 24px;
+	display: inline-block;
+}
+
+.item-button-edit {
+	width: 24px;
+	height: 24px;
+	display: inline;
+	background-color: white;
+	border-radius: 3px;
+	cursor: pointer;
+}
+
+.item-button-edit:hover {
+	color: lightsalmon;
+}
+
+.checkbox-wrapper {
+	flex: 2;
+	margin-right: 0;
+}
+
+.empty-div {
+	flex: 7;
+}
+
+.edit-button-wrapper {
+	flex: 1;
+}
+
+/*-------------------------heading bar-------------------------*/
 
 .heading-bar-steez {
 	padding-top: 20px;

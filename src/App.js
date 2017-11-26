@@ -1,8 +1,15 @@
 import React, { Component } from 'react';
-// import logo from './logo.svg';
+import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
+import Drawer from 'material-ui/Drawer';
+import MenuItem from 'material-ui/MenuItem';
 import './App.css';
-import {ListOfLists, HeadingBar, AddItemButton, SideMenu, SignInView, AddItemModal, AddCategoryModal} from './js/components.js';
-import './js/functions.js';
+import {HeadingBar, AddItemButton} from './js/components.js';
+import SignInView from './components/SignInView';
+import ListOfLists from './components/ListOfLists';
+import AddItemModal from './components/AddItemModal';
+import EditItemModal from './components/EditItemModal';
+import AddCategoryModal from './components/AddCategoryModal';
+import {findItemById} from './js/functions.js';
 import * as firebase from "firebase";
 
 const firebaseConfig = {
@@ -13,10 +20,8 @@ const firebaseConfig = {
   messagingSenderId: "1098985413077"
 };
 const firebaseApp = firebase.initializeApp(firebaseConfig);
-// const firebaseAppDatabase = firebaseApp.database();
-// const firebaseAppAuth = firebaseApp.auth();
 
-/* state = menuBarVisible, items, categories */
+/* state = menuBarVisible, items, categories, lists, itemCurrentlyBeingEdited */
 class App extends Component {
   constructor(){
     super();
@@ -27,14 +32,18 @@ class App extends Component {
       currentUid: null,
       items: null,
       categories: null,
+      lists: null,
       menuBarVisible: false,
       addItemModalIsOpen: false,
       addCategoryModalIsOpen: false,
+      editItemModalIsOpen: false,
+      itemCurrentlyBeingEdited: 0,
       authenticationError: null
     };
 
     this.itemsRef = firebaseApp.database().ref();
     this.categoriesRef = firebaseApp.database().ref();
+    this.listsRef = firebaseApp.database().ref();
 
     this.toggleMenuBar = this.toggleMenuBar.bind(this);
     this.firebaseSignIn = this.firebaseSignIn.bind(this);
@@ -52,6 +61,10 @@ class App extends Component {
     this.openAddCategoryModal = this.openAddCategoryModal.bind(this);
     this.afterOpenAddCategoryModal = this.afterOpenAddCategoryModal.bind(this);
     this.closeAddCategoryModal = this.closeAddCategoryModal.bind(this);
+
+    this.openEditItemModal = this.openEditItemModal.bind(this);
+    this.afterOpenEditItemModal = this.afterOpenEditItemModal.bind(this);
+    this.closeEditItemModal = this.closeEditItemModal.bind(this);
   }
 
   toggleMenuBar(){
@@ -60,9 +73,10 @@ class App extends Component {
   }
 
   listenForDatabaseChange() {
-    var firebaseItems = []; 
-    var firebaseCategories = [];
-    
+    let firebaseItems = [];
+    let firebaseCategories = [];
+    let firebaseLists = [];
+
     this.categoriesRef.on('value', (snap) => {
       firebaseCategories = [];
       if(snap){
@@ -86,12 +100,26 @@ class App extends Component {
         });
       }
     });
+
+    this.listsRef.on('value', (snap) => {
+      firebaseLists = [];
+      if(snap){
+        snap.forEach((child) => {
+          firebaseLists.push(child.val());
+        });
+        this.setState({
+          lists: firebaseLists
+        });
+      }
+    });
+    console.log(firebaseLists);
   }
 
   firebaseSignIn(email, password) {
     firebase.auth().signInWithEmailAndPassword(email, password).then(() => {
         this.setState({
           componentToShow: "Main",
+          menuBarVisible: false,
         });
       }).catch((error) => {
         this.setState({
@@ -104,6 +132,7 @@ class App extends Component {
     firebase.auth().createUserWithEmailAndPassword(email, password).then(() => {
       this.setState({
         componentToShow: "Main",
+        menuBarVisible: false,
       });
     }).catch((error) => {
       this.setState({
@@ -121,9 +150,9 @@ class App extends Component {
   }
 
   addItem(name, category){
-    var newItem = {};
-    var arrayOfItemIds = [];
-    var nextAvailableItemId;
+    let newItem = {};
+    let arrayOfItemIds = [];
+    let nextAvailableItemId;
 
     if(this.state.items){
       this.state.items.forEach((item) => {
@@ -133,7 +162,6 @@ class App extends Component {
     else{
       arrayOfItemIds.push(0);
     }
-    
 
     if(arrayOfItemIds.length > 0){
       nextAvailableItemId = Math.max(...arrayOfItemIds) + 1;
@@ -145,7 +173,7 @@ class App extends Component {
     newItem.id = nextAvailableItemId;
     newItem.name = name;
     newItem.tagId = category.id;
-    
+
     this.itemsRef.push(newItem);
   }
 
@@ -153,7 +181,7 @@ class App extends Component {
     item.name = newName;
     item.tagId = newTag.id;
 
-    var matchKey = null;
+    let matchKey = null;
 
     this.itemsRef.on('value', (snap) => {
       snap.forEach((child) => {
@@ -164,12 +192,13 @@ class App extends Component {
     });
 
     if(matchKey != null){
-      var itemToEditRef = this.itemsRef.child(matchKey);
+      let itemToEditRef = this.itemsRef.child(matchKey);
       itemToEditRef.set(item);
     }
   }
 
   addCategory(name){
+    console.log(`attempting to add ${name}`);
     var newTag = {};
     var arrayOfTagIds = [];
     var nextAvailableTagId;
@@ -182,7 +211,7 @@ class App extends Component {
     else{
       arrayOfTagIds.push(0);
     }
-    
+
     if(arrayOfTagIds.length > 0){
       nextAvailableTagId = Math.max(...arrayOfTagIds) + 1;
     }
@@ -198,7 +227,7 @@ class App extends Component {
   }
 
   deleteItem(item){
-    var matchKey = null;
+    let matchKey = null;
 
     this.itemsRef.once('value', (snap) => {
       snap.forEach((child) => {
@@ -207,8 +236,8 @@ class App extends Component {
         }
       });
       if(matchKey != null){
-        // var itemToDeleteRef = firebaseApp.database().ref("/users/" + currentUid + "/items/" + matchKey);
-        var itemToDeleteRef = this.itemsRef.child(matchKey);
+        // let itemToDeleteRef = firebaseApp.database().ref("/users/" + currentUid + "/items/" + matchKey);
+        let itemToDeleteRef = this.itemsRef.child(matchKey);
         itemToDeleteRef.remove();
       }
     });
@@ -218,22 +247,34 @@ class App extends Component {
     this.setState({addItemModalIsOpen: true});
   }
 
-  afterOpenAddItemModal() {
-    // references are now sync'd and can be accessed.
-    // this.refs.subtitle.style.color = '#f00';
-  }
-
   closeAddItemModal() {
     this.setState({addItemModalIsOpen: false});
   }
 
-  openAddCategoryModal() {
-    this.setState({addCategoryModalIsOpen: true});
+  openEditItemModal(itemId) {
+    const { items } = this.state;
+    const item = findItemById(itemId, items);
+    this.setState({
+      itemCurrentlyBeingEdited: item
+    }, () => {
+      this.setState({
+        editItemModalIsOpen: true
+      });
+    });
   }
 
-  afterOpenAddCategoryModal() {
-    // references are now sync'd and can be accessed.
-    // this.refs.subtitle.style.color = '#f00';
+  closeEditItemModal() {
+    this.setState({
+      editItemModalIsOpen: false,
+      itemCurrentlyBeingEdited: 0
+    });
+  }
+
+  openAddCategoryModal() {
+    this.setState({
+      addCategoryModalIsOpen: true,
+      menuBarVisible: false
+    });
   }
 
   closeAddCategoryModal() {
@@ -250,9 +291,10 @@ class App extends Component {
       if (user && user.uid === this.state.currentUid) {
         return;
       }
-      if(user){
+      if (user){
         this.itemsRef = firebaseApp.database().ref("/users/" + user.uid + "/items/");
         this.categoriesRef = firebaseApp.database().ref("/users/" + user.uid + "/tags/");
+        this.listsRef = firebaseApp.database().ref("/users/" + user.uid + "/lists/");
         this.setState({
           componentToShow: "Main",
           signedIn: true,
@@ -272,44 +314,62 @@ class App extends Component {
   render() {
     if(this.state.componentToShow === "Main"){
       return(
-        <div className="main-div-steez">
-          <AddItemButton openAddItemModal={this.openAddItemModal}/>
-          <HeadingBar
-            toggleMenuBar={this.toggleMenuBar}
-            menuBarVisible={this.state.menuBarVisible}
-          />
-          <ListOfLists 
-            items={this.state.items} 
-            categories={this.state.categories}
-            deleteItem={this.deleteItem}
-          />
-          <SideMenu 
-            isVisible={this.state.menuBarVisible} 
-            firebaseSignOut={this.firebaseSignOut} 
-            openAddCategoryModal={this.openAddCategoryModal}
-          />
-          <AddItemModal 
-            modalIsOpen={this.state.addItemModalIsOpen} 
-            onAfterOpen={this.afterOpenAddItemModal} 
-            onRequestClose={this.closeAddItemModal} 
-            categories={this.state.categories} 
-            addItem={this.addItem}
-          />
-          <AddCategoryModal 
-            modalIsOpen={this.state.addCategoryModalIsOpen} 
-            onAfterOpen={this.afterOpenAddCategoryModal} 
-            onRequestClose={this.closeAddCategoryModal} 
-            addCategory={this.addCategory}
-          />
-        </div>
+        <MuiThemeProvider>
+          <div className="main-div-steez">
+            <AddItemButton openAddItemModal={this.openAddItemModal}/>
+            <HeadingBar
+              toggleMenuBar={this.toggleMenuBar}
+              menuBarVisible={this.state.menuBarVisible}
+            />
+            <ListOfLists
+              items={this.state.items}
+              categories={this.state.categories}
+              deleteItem={this.deleteItem}
+              openEditItemModal={this.openEditItemModal}
+            />
+            <Drawer
+              docked={false}
+              width={200}
+              open={this.state.menuBarVisible}
+              onRequestChange={(menuBarVisible) => this.setState({menuBarVisible})}
+              openSecondary={true}
+            >
+              <MenuItem onClick={this.openAddCategoryModal}>Add category</MenuItem>
+              <MenuItem onClick={this.firebaseSignOut}>Log out</MenuItem>
+            </Drawer>
+
+            <AddItemModal
+              modalIsOpen={this.state.addItemModalIsOpen}
+              onRequestClose={this.closeAddItemModal}
+              categories={this.state.categories}
+              addItem={this.addItem}
+            />
+
+            <EditItemModal
+              modalIsOpen={this.state.editItemModalIsOpen}
+              onRequestClose={this.closeEditItemModal}
+              categories={this.state.categories}
+              editItem={this.saveItem}
+              itemToEdit={this.state.itemCurrentlyBeingEdited}
+            />
+
+            <AddCategoryModal
+              modalIsOpen={this.state.addCategoryModalIsOpen}
+              onRequestClose={this.closeAddCategoryModal}
+              addCategory={this.addCategory}
+            />
+          </div>
+        </MuiThemeProvider>
       );
     }
     else if(this.state.componentToShow === "SignUp"){
       return(
-        <SignInView 
-          firebaseSignIn={this.firebaseSignIn} 
-          firebaseSignUp={this.firebaseSignUp}
-        />
+        <MuiThemeProvider>
+          <SignInView
+            firebaseSignIn={this.firebaseSignIn}
+            firebaseSignUp={this.firebaseSignUp}
+          />
+        </MuiThemeProvider>
       );
     }
     else{
