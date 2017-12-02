@@ -52,4 +52,32 @@ function findCategoryByName(name, categories){
   return matchingCategory;
 }
 
-export {getAssociatedId, findItemById, findItemsByCategory, findCategoryById, findCategoryByName};
+function findListById(id, lists){
+  let matchingList;
+  if(lists){
+    lists.forEach((list) => {
+      if(list.id === id){
+        matchingList = list;
+      }
+    });
+  }
+  return matchingList;
+}
+
+function findListByName(name, lists){
+  let matchingList = false;
+  if(lists){
+    lists.forEach((list) => {
+      if(list.name === name){
+        matchingList = list;
+      }
+    });
+  }
+  return matchingList;
+}
+
+function exists(thing) {
+  return typeof thing !== "undefined" && typeof thing !== "null" ? true : false;
+}
+
+export {getAssociatedId, findItemById, findItemsByCategory, findCategoryById, findCategoryByName, findListByName, findListById, exists};

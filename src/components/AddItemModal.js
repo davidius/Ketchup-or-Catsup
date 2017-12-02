@@ -4,21 +4,23 @@ import FlatButton from 'material-ui/FlatButton';
 import SelectField from 'material-ui/SelectField';
 import MenuItem from 'material-ui/MenuItem';
 import TextField from 'material-ui/TextField';
-import {findCategoryByName} from '../js/functions.js';
+import {findCategoryByName, findListByName} from '../js/functions.js';
 
 // @TODO: the below props need updating
-/* props = modalIsOpen, onAfterOpen, onRequestClose, style, contentLabel, categories, addItem */
+/* props = modalIsOpen, onAfterOpen, onRequestClose, style, contentLabel, categories, addItem, lists, listToShow */
 export default class AddItemModal extends Component {
   constructor(props){
     super(props);
 
     this.state = {
       itemName: "",
-      categoryName: ""
+      categoryName: "",
+      listName: "",
     };
-    
+
     this.handleTextChange = this.handleTextChange.bind(this);
     this.handleDropdownChange = this.handleDropdownChange.bind(this);
+    this.handleListChange = this.handleListChange.bind(this);
     this.handleAddItem = this.handleAddItem.bind(this);
     this.addItemActions = [
       <FlatButton
@@ -48,13 +50,20 @@ export default class AddItemModal extends Component {
     });
   }
 
+  handleListChange(event, index, value) {
+    this.setState({
+      listName: value
+    });
+  }
+
   handleAddItem(event) {
     event.preventDefault();
     let itemName = this.state.itemName.trim();
 
     if(itemName !== "" && this.props.categories.length > 0){
-      let actualCategory = findCategoryByName(this.state.categoryName, this.props.categories);
-      this.props.addItem(itemName, actualCategory);
+      const category = findCategoryByName(this.state.categoryName, this.props.categories);
+      const list = this.state.listName !== "[No list]" && this.state.listName !== "" ? findListByName(this.state.listName, this.props.lists) : undefined;
+      this.props.addItem(itemName, category, list);
       this.handleClose();
     }
   }
@@ -63,6 +72,7 @@ export default class AddItemModal extends Component {
     this.setState({
       itemName: "",
       categoryName: "",
+      listName: "",
     });
     this.props.onRequestClose();
   };
@@ -73,21 +83,38 @@ export default class AddItemModal extends Component {
         categoryName: this.props.categories[0].name
       });
     }
+    if(this.props.listToShow) {
+      this.setState({
+        listName: this.props.listToShow.name
+      });
+    } else {
+      this.setState({
+        listName: "[No list]"
+      });
+    }
   }
 
   render() {
-    var categoriesToShow = [];
-    const { categories } = this.props;
-    
+    let categoriesToShow = [];
+    let listsToShow = [];
+    const { categories, lists } = this.props;
+
     if(categories && this.state.categoryName){
       categories.forEach((category) => {
         categoriesToShow.push(<MenuItem value={category.name} primaryText={category.name} key={category.id}></MenuItem>)
       });
     }
 
-    var noCategoriesMessage;
+    if (lists) {
+      listsToShow.push(<MenuItem value="[No list]" primaryText="[No list]" key="unlisted-key"></MenuItem>);
+      lists.forEach((list) => {
+        listsToShow.push(<MenuItem value={list.name} primaryText={list.name} key={list.id}></MenuItem>)
+      });
+    }
+
+    let noCategoriesMessage;
     if(categories && categories.length === 0){
-      noCategoriesMessage = <div className="error-message">You'll need to add at least one category before you can add an item.</div>;
+      noCategoriesMessage = <div className="error-message">{`You'll need to add at least one category before you can add an item.`}</div>;
     }
 
     return(
@@ -102,14 +129,20 @@ export default class AddItemModal extends Component {
           <TextField hintText="Your item's name" onChange={this.handleTextChange}/>
         </div>
         <div>
-          { categories && categories[0].name ? 
+          { categories && categories[0].name ?
             <SelectField floatingLabelText="Your item's category" value={this.state.categoryName} onChange={this.handleDropdownChange}>
               {categoriesToShow}
             </SelectField>
             : {noCategoriesMessage}
           }
         </div>
-        
+        <div>
+          { lists && lists.length > 0 ?
+            <SelectField floatingLabelText="List" value={this.state.listName} onChange={this.handleListChange}>
+              {listsToShow}
+            </SelectField> : null
+          }
+        </div>
       </Dialog>
     );
   }

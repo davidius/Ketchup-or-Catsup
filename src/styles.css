@@ -44,6 +44,12 @@ h2 {
 	text-decoration: underline;
 }
 
+/*--------------------------------menus----------------------------------*/
+
+/*.menu-icon-style svg {
+	fill: orange !important;
+}*/
+
 /*--------------------------------icon buttons----------------------------------*/
 
 .pencil-icon {

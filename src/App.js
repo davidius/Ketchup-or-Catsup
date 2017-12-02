@@ -2,6 +2,8 @@ import React, { Component } from 'react';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
 import Drawer from 'material-ui/Drawer';
 import MenuItem from 'material-ui/MenuItem';
+import Divider from 'material-ui/Divider';
+// import AppBar from 'material-ui/AppBar';
 import './App.css';
 import {HeadingBar, AddItemButton} from './js/components.js';
 import SignInView from './components/SignInView';
@@ -9,8 +11,11 @@ import ListOfLists from './components/ListOfLists';
 import AddItemModal from './components/AddItemModal';
 import EditItemModal from './components/EditItemModal';
 import AddCategoryModal from './components/AddCategoryModal';
+import AddListModal from './components/AddListModal';
 import {findItemById} from './js/functions.js';
 import * as firebase from "firebase";
+
+import PlusIcon from 'material-ui/svg-icons/content/add-circle';
 
 const firebaseConfig = {
   apiKey: "AIzaSyARzTuhAghdO_nrABRGNZIRbnZpiQoK4KE",
@@ -33,9 +38,11 @@ class App extends Component {
       items: null,
       categories: null,
       lists: null,
+      currentList: null,
       menuBarVisible: false,
       addItemModalIsOpen: false,
       addCategoryModalIsOpen: false,
+      addListModalIsOpen: false,
       editItemModalIsOpen: false,
       itemCurrentlyBeingEdited: 0,
       authenticationError: null
@@ -53,9 +60,13 @@ class App extends Component {
     this.saveItem = this.saveItem.bind(this);
     this.deleteItem = this.deleteItem.bind(this);
     this.addCategory = this.addCategory.bind(this);
+    this.addList = this.addList.bind(this);
 
     this.openAddItemModal = this.openAddItemModal.bind(this);
     this.closeAddItemModal = this.closeAddItemModal.bind(this);
+
+    this.openAddListModal = this.openAddListModal.bind(this);
+    this.closeAddListModal = this.closeAddListModal.bind(this);
 
     this.openAddCategoryModal = this.openAddCategoryModal.bind(this);
     this.closeAddCategoryModal = this.closeAddCategoryModal.bind(this);
@@ -145,7 +156,7 @@ class App extends Component {
     });
   }
 
-  addItem(name, category){
+  addItem(name, category, list){
     let newItem = {};
     let arrayOfItemIds = [];
     let nextAvailableItemId;
@@ -169,13 +180,21 @@ class App extends Component {
     newItem.id = nextAvailableItemId;
     newItem.name = name;
     newItem.tagId = category.id;
+    if (list) {
+      newItem.listId = list.id;
+    }
 
     this.itemsRef.push(newItem);
   }
 
-  saveItem(item, newName, newTag){
+  saveItem(item, newName, newTag, list){
     item.name = newName;
     item.tagId = newTag.id;
+    if (list) {
+      item.listId = list.id;
+    } else if (item.listId) {
+      delete item.listId;
+    }
 
     let matchKey = null;
 
@@ -194,7 +213,6 @@ class App extends Component {
   }
 
   addCategory(name){
-    console.log(`attempting to add ${name}`);
     var newTag = {};
     var arrayOfTagIds = [];
     var nextAvailableTagId;
@@ -222,6 +240,34 @@ class App extends Component {
     return newTag;
   }
 
+  addList(name){
+    var newList = {};
+    var arrayOfListIds = [];
+    var nextAvailableListId;
+
+    if(this.state.lists){
+      this.state.lists.forEach((tag) => {
+        arrayOfListIds.push(tag.id);
+      });
+    }
+    else{
+      arrayOfListIds.push(0);
+    }
+
+    if(arrayOfListIds.length > 0){
+      nextAvailableListId = Math.max(...arrayOfListIds) + 1;
+    }
+    else{
+      nextAvailableListId = 0;
+    }
+
+    newList.name = name;
+    newList.id = nextAvailableListId;
+
+    this.listsRef.push(newList);
+    return newList;
+  }
+
   deleteItem(item){
     let matchKey = null;
 
@@ -232,7 +278,6 @@ class App extends Component {
         }
       });
       if(matchKey != null){
-        // let itemToDeleteRef = firebaseApp.database().ref("/users/" + currentUid + "/items/" + matchKey);
         let itemToDeleteRef = this.itemsRef.child(matchKey);
         itemToDeleteRef.remove();
       }
@@ -277,6 +322,24 @@ class App extends Component {
     this.setState({addCategoryModalIsOpen: false});
   }
 
+  openAddListModal() {
+    this.setState({
+      addListModalIsOpen: true,
+      menuBarVisible: false
+    });
+  }
+
+  closeAddListModal() {
+    this.setState({addListModalIsOpen: false});
+  }
+
+  setCurrentList(list) {
+    this.setState({
+      currentList: list,
+      menuBarVisible: false,
+    });
+  }
+
   componentWillMount(){
     // Listen to change in auth state so it displays the correct UI for when
     // the user is signed in or not.
@@ -308,6 +371,12 @@ class App extends Component {
   }
 
   render() {
+    const lists = this.state.lists;
+    const menuIconStyle = {
+      fill: 'orange',
+      marginLeft: '6',
+      marginRight: '6',
+    };
     if(this.state.componentToShow === "Main"){
       return(
         <MuiThemeProvider>
@@ -322,6 +391,7 @@ class App extends Component {
               categories={this.state.categories}
               deleteItem={this.deleteItem}
               openEditItemModal={this.openEditItemModal}
+              listToShow={this.state.currentList}
             />
             <Drawer
               docked={false}
@@ -330,7 +400,28 @@ class App extends Component {
               onRequestChange={(menuBarVisible) => this.setState({menuBarVisible})}
               openSecondary={true}
             >
-              <MenuItem onClick={this.openAddCategoryModal}>Add category</MenuItem>
+              <MenuItem><b>Your lists</b></MenuItem>
+              <Divider />
+              <MenuItem onClick={() => this.setCurrentList(null)}>[No list]</MenuItem>
+              {
+                lists ? lists.map((list) =>
+                  <MenuItem
+                    onClick={() => this.setCurrentList(list)}
+                    key={list.id}
+                  >
+                  {list.name}
+                  </MenuItem>
+                ) : null
+              }
+              <Divider />
+              <MenuItem
+                onClick={this.openAddListModal}
+                leftIcon={<PlusIcon style={menuIconStyle} />}
+              >New list</MenuItem>
+              <MenuItem
+                onClick={this.openAddCategoryModal}
+                leftIcon={<PlusIcon style={menuIconStyle} />}
+              >Add category</MenuItem>
               <MenuItem onClick={this.firebaseSignOut}>Log out</MenuItem>
             </Drawer>
 
@@ -339,6 +430,8 @@ class App extends Component {
               onRequestClose={this.closeAddItemModal}
               categories={this.state.categories}
               addItem={this.addItem}
+              lists={this.state.lists}
+              listToShow={this.state.currentList}
             />
 
             <EditItemModal
@@ -347,12 +440,19 @@ class App extends Component {
               categories={this.state.categories}
               editItem={this.saveItem}
               itemToEdit={this.state.itemCurrentlyBeingEdited}
+              lists={this.state.lists}
             />
 
             <AddCategoryModal
               modalIsOpen={this.state.addCategoryModalIsOpen}
               onRequestClose={this.closeAddCategoryModal}
               addCategory={this.addCategory}
+            />
+
+            <AddListModal
+              modalIsOpen={this.state.addListModalIsOpen}
+              onRequestClose={this.closeAddListModal}
+              addList={this.addList}
             />
           </div>
         </MuiThemeProvider>
