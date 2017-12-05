@@ -402,7 +402,7 @@ class App extends Component {
             >
               <MenuItem><b>Your lists</b></MenuItem>
               <Divider />
-              <MenuItem onClick={() => this.setCurrentList(null)}>[No list]</MenuItem>
+              <MenuItem onClick={() => this.setCurrentList(null)}>Default list</MenuItem>
               {
                 lists ? lists.map((list) =>
                   <MenuItem

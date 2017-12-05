@@ -62,7 +62,7 @@ export default class AddItemModal extends Component {
 
     if(itemName !== "" && this.props.categories.length > 0){
       const category = findCategoryByName(this.state.categoryName, this.props.categories);
-      const list = this.state.listName !== "[No list]" && this.state.listName !== "" ? findListByName(this.state.listName, this.props.lists) : undefined;
+      const list = this.state.listName !== "Default list" && this.state.listName !== "" ? findListByName(this.state.listName, this.props.lists) : undefined;
       this.props.addItem(itemName, category, list);
       this.handleClose();
     }
@@ -89,7 +89,7 @@ export default class AddItemModal extends Component {
       });
     } else {
       this.setState({
-        listName: "[No list]"
+        listName: "Default list"
       });
     }
   }
@@ -106,7 +106,7 @@ export default class AddItemModal extends Component {
     }
 
     if (lists) {
-      listsToShow.push(<MenuItem value="[No list]" primaryText="[No list]" key="unlisted-key"></MenuItem>);
+      listsToShow.push(<MenuItem value="Default list" primaryText="Default list" key="unlisted-key"></MenuItem>);
       lists.forEach((list) => {
         listsToShow.push(<MenuItem value={list.name} primaryText={list.name} key={list.id}></MenuItem>)
       });

@@ -11,7 +11,7 @@ import {findCategoryById, findCategoryByName, findListByName, findListById, exis
 export default class EditItemModal extends Component {
   constructor(props){
     super(props);
-    const listName = this.props.itemToEdit.listId ? findListById(this.props.itemToEdit.listId, this.props.lists).name : "[No list]";
+    const listName = this.props.itemToEdit.listId ? findListById(this.props.itemToEdit.listId, this.props.lists).name : "Default list";
 
     this.state = {
       newItemName: this.props.itemToEdit.name,
@@ -54,8 +54,6 @@ export default class EditItemModal extends Component {
   handleListChange(event, index, value) {
     this.setState({
       listName: value
-    }, () => {
-      console.dir(findListByName(this.state.listName, this.props.lists));
     });
   }
 
@@ -67,7 +65,7 @@ export default class EditItemModal extends Component {
 
     if(newItemName !== "" && categories.length > 0){
       let actualCategory = findCategoryByName(categoryName, categories);
-      const list = this.state.listName !== "[No list]" && this.state.listName !== "" ? findListByName(this.state.listName, this.props.lists) : undefined;
+      const list = this.state.listName !== "Default list" && this.state.listName !== "" ? findListByName(this.state.listName, this.props.lists) : undefined;
       this.props.editItem(itemToEdit, newItemName, actualCategory, list);
       this.handleClose();
     }
@@ -86,7 +84,7 @@ export default class EditItemModal extends Component {
       });
     }
     if (lists && lists.length > 0) {
-      const listName = exists(itemToEdit.listId) ? findListById(itemToEdit.listId, lists).name : "[No list]";
+      const listName = exists(itemToEdit.listId) ? findListById(itemToEdit.listId, lists).name : "Default list";
       this.setState({
         listName
       });
@@ -105,7 +103,7 @@ export default class EditItemModal extends Component {
     }
 
     if (lists) {
-      listsToShow.push(<MenuItem value="[No list]" primaryText="[No list]" key="unlisted-key"></MenuItem>);
+      listsToShow.push(<MenuItem value="Default list" primaryText="Default list" key="unlisted-key"></MenuItem>);
       lists.forEach((list) => {
         listsToShow.push(<MenuItem value={list.name} primaryText={list.name} key={list.id}></MenuItem>)
       });
