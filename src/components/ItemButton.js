@@ -35,13 +35,14 @@ export default class ItemButton extends Component {
       <li key={item.id} className="item-button-steez" id={liID}>
         <div className="checkbox-wrapper">
           <Checkbox
-            label={item.name}
             onCheck={this.handleCheckboxClick}
             id={checkID}
             className="item-button-check"
           />
         </div>
-        <div className="empty-div" />
+        <div className="item-name">
+          {item.name}
+        </div>
         <div className="edit-button-wrapper">
           <a className="item-button-edit" onClick={this.handleEditClick}>
             <ModeEditIcon />

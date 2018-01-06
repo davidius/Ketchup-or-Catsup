@@ -164,12 +164,13 @@ h2 {
 }
 
 .checkbox-wrapper {
-	flex: 2;
+	flex: 1;
 	margin-right: 0;
 }
 
-.empty-div {
-	flex: 7;
+.item-name {
+	padding-top: 2px;
+	flex: 8;
 }
 
 .edit-button-wrapper {
